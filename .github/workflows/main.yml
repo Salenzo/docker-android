@@ -1,0 +1,29 @@
+name: macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: Run this
+        default: ""
+        required: false
+
+jobs:
+  hello:
+    runs-on: macos-latest
+    steps:
+      - name: "114514"
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: "1919810"
+        env:
+          my_command: ${{ github.event.inputs.name }}
+        run: |
+          bash -ec "$my_command"
+          git add -A
+          if git -c user.email=@ -c user.name="GitHub Actions" commit --allow-empty-message -m ""
+          then
+            git push origin master
+          fi
