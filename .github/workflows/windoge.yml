@@ -5,15 +5,22 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+    - name: "Cache Qt"
+      id: cache-qt
+      uses: actions/cache@v1  # not v2!
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-QtCache
     - name: "Install Qt"
       uses: jurplel/install-qt-action@v2
       with:
-        version: "5.5.1"
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        version: "5.4.2"
         modules: "qtcharts qtwebengine qtscript debug_info"
     - name: "Checkout"
       uses: actions/checkout@v2
       with:
         repository: KDAB/GammaRay
-        #ref: master
+        ref: v2.10.0
     - name: "伟大的tmate插件"
       uses: mxschmitt/action-tmate@v3
