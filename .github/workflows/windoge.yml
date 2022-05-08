@@ -1,4 +1,3 @@
-
 name: "狗Windows在patch-1"
 on:
   push:
@@ -20,8 +19,9 @@ jobs:
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
         #version: "5.4.2"
         modules: "qtcharts qtwebengine qtscript debug_info"
-    - name: "Visual Studio shell"
-      uses: egor-tensin/vs-shell@v2
+        arch: win32_msvc2015
+    - name: "Another MSVC setup"
+      uses: TheMrMilchmann/setup-msvc-dev@v1
       with:
         arch: x86
     - name: "Checkout"
