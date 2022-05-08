@@ -1,6 +1,8 @@
 name: 狗Windows
 on:
-  workflow_dispatch:
+  push:
+    branches:
+    - patch-1
 jobs:
   build:
     runs-on: windows-latest
