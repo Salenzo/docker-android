@@ -1,10 +1,14 @@
 name: 狗Windows
-
 on:
   workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
     steps:
+    - name: "Install Qt"
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: "5.5.1"
+        modules: "qtcharts qtwebengine qtscript debug_info"
     - name: "伟大的tmate插件"
       uses: mxschmitt/action-tmate@v3
