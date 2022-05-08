@@ -17,6 +17,10 @@ jobs:
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
         #version: "5.4.2"
         modules: "qtcharts qtwebengine qtscript debug_info"
+    - name: "Visual Studio shell"
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x86
     - name: "Checkout"
       uses: actions/checkout@v2
       with:
