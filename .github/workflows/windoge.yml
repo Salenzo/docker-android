@@ -1,6 +1,9 @@
-name: 狗Windows
+
+name: "狗Windows在patch-1"
 on:
-  workflow_dispatch:
+  push:
+    branches:
+    - "patch-1"
 jobs:
   build:
     runs-on: windows-latest
