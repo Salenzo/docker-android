@@ -1,0 +1,10 @@
+name: 狗Windows
+on:
+  workflow_dispatch:
+    你好: 视窗！
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: 真正伟大的tmate插件
+      uses: mxschmitt/action-tmate@v3
