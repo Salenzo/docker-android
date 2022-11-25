@@ -1,0 +1,19 @@
+name: Dogix
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo "
+          source 'https://rubygems.org'
+          gem 'jekyll'
+          gem 'httpclient-fixcerts'
+          gem 'neocities'
+        " > Gemfile
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "3.1"
+        bundler-cache: true
+    - uses: mxschmitt/action-tmate@v3
