@@ -3,17 +3,24 @@ name: GET
 on:
   workflow_dispatch:
     inputs:
-      url:
-        type: text
-        required: true
+      url1: {type: text, required: false}
+      url2: {type: text, required: false}
+      url3: {type: text, required: false}
+      url4: {type: text, required: false}
+      url5: {type: text, required: false}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          curl -L --output a.out ${{ inputs.url }}
+          curl -LO ${{ inputs.url1 }} || true
+          curl -LO ${{ inputs.url2 }} || true
+          curl -LO ${{ inputs.url3 }} || true
+          curl -LO ${{ inputs.url4 }} || true
+          curl -LO ${{ inputs.url5 }} || true
           ls -l
-      - uses: softprops/action-gh-release@v1
+      - uses: actions/upload-artifact@v3
         with:
-          files: a.out
+          name: downloads
+          path: .
