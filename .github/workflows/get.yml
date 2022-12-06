@@ -1,0 +1,19 @@
+name: GET
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        type: text
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -L --output a.out ${{ inputs.url }}
+          ls -l
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: a.out
