@@ -34,8 +34,8 @@ jobs:
           ninja aseprite
         EOF
         cmd.exe /c b.bat
-        7z a a.7z bin
+        7z a b.7z bin
     - uses: actions/upload-artifact@v3
       with:
-        name: a
-        path: a.7z
+        name: b
+        path: b/b.7z
