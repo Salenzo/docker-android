@@ -22,7 +22,7 @@ jobs:
         # Aseprite不支持在Windows上用g++编译，PATH中的MinGW会干扰CMake判断。因为找不到对应的Chocolatey包来卸，故以暴力手段处理，反正主机是一次性的。
         for i in c++ cpp gcc g++ cc ar as ld nm ranlib windres gfortran make mingw32-make ccache
         do
-          while rm -v $(which $i) 2>/dev/null
+          while rm -v $(which $i 2>/dev/null) 2>/dev/null
           do
             :
           done
