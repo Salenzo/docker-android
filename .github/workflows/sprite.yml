@@ -22,18 +22,18 @@ jobs:
         # Aseprite不支持在Windows上用g++编译，PATH中的MinGW会干扰CMake判断。因为找不到对应的Chocolatey包来卸，故以暴力手段处理，反正主机是一次性的。
         for i in c++ cpp gcc g++ cc ar as ld nm ranlib windres gfortran make mingw32-make ccache
         do
-          while rm -v $(which $i)
+          while rm -v $(which $i) 2>/dev/null
           do
             :
           done
         done
-        cat <<'EOF' > b.bat
-          for /f "usebackq delims=" %%i in (`vswhere.exe -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -DSKIA_DIR=..\c -DSKIA_LIBRARY_DIR=..\c\out\Release-x64 -DSKIA_LIBRARY=..\c\out\Release-x64\skia.lib ^
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -G Ninja ..\a
-          ninja aseprite
-        EOF
-        cmd.exe /c b.bat
+    - shell: cmd
+      run: |
+        cd b
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        cmake -DSKIA_DIR=..\c -DSKIA_LIBRARY_DIR=..\c\out\Release-x64 -DSKIA_LIBRARY=..\c\out\Release-x64\skia.lib ^
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -G Ninja ..\a
+        ninja aseprite
         7z a b.7z bin
     - uses: actions/upload-artifact@v3
       with:
