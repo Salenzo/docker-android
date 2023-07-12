@@ -63,5 +63,5 @@ jobs:
         7z a b.7z bin
     - uses: actions/upload-artifact@v3
       with:
-        name: b
+        name: ${{ matrix.os }}
         path: b/b.7z
