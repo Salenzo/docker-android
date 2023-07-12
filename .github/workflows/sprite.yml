@@ -21,8 +21,8 @@ jobs:
         mkdir -p a b c
         curl -LO "https://github.com/aseprite/aseprite/releases/download/$VERSION/Aseprite-$VERSION-Source.zip"
         unzip -qo Aseprite-$VERSION-Source.zip -d a
-        curl -LO "https://github.com/aseprite/skia/releases/download/$SKIAVERSION/Skia-Windows-Release-x64.zip"
-        unzip -qo Skia-Windows-Release-x64.zip -d c
+        curl -LO "https://github.com/aseprite/skia/releases/download/$SKIAVERSION/Skia-${{ runner.os }}-Release-x64.zip"
+        unzip -qo Skia-${{ runner.os }}-Release-x64.zip -d c
     - if: runner.os == 'Windows'
       shell: bash
       run: |
@@ -47,7 +47,7 @@ jobs:
     - if: runner.os == 'macOS'
       shell: bash
       run: |
-        brew install ninja webp
+        brew install ninja
         cd b
         cmake \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo \
