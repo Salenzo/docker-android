@@ -17,8 +17,8 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -x
-        SKIAVERSION="$(gh api /repos/aseprite/skia/releases/latest | jq -r .tag_name)"
-        VERSION="$(gh api /repos/aseprite/aseprite/releases/latest | jq -r .tag_name)"
+        SKIAVERSION="$(gh api repos/aseprite/skia/releases/latest | jq -r .tag_name)"
+        VERSION="$(gh api repos/aseprite/aseprite/releases/latest | jq -r .tag_name)"
         # VERSION=v1.2.39
         mkdir -p a b c
         curl -LO "https://github.com/aseprite/aseprite/releases/download/$VERSION/Aseprite-$VERSION-Source.zip"
