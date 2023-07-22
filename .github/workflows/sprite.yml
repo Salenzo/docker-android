@@ -13,10 +13,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -x
-        SKIAVERSION="$(curl https://api.github.com/repos/aseprite/skia/releases/latest | jq -r .tag_name)"
-        VERSION="$(curl https://api.github.com/repos/aseprite/aseprite/releases/latest | jq -r .tag_name)"
+        SKIAVERSION="$(gh api /repos/aseprite/skia/releases/latest | jq -r .tag_name)"
+        VERSION="$(gh api /repos/aseprite/aseprite/releases/latest | jq -r .tag_name)"
         # VERSION=v1.2.39
         mkdir -p a b c
         curl -LO "https://github.com/aseprite/aseprite/releases/download/$VERSION/Aseprite-$VERSION-Source.zip"
