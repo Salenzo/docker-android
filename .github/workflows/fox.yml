@@ -10,10 +10,10 @@ jobs:
     - uses: actions/checkout@v3
     - run: |
         unzip fox-*.zip
-        rm fox-*.zip
-        mv fox-* fox-build
+        rm -v fox-*.zip
+        mv -v fox-* fox-build
         cd fox-build
-        ./configure
+        bash configure
         make
     - uses: actions/upload-artifact@v3
       with:
