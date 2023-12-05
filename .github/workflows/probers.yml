@@ -1,0 +1,18 @@
+name: probe-rs
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "1 14 * * THU"
+jobs:
+  a:
+    runs-on: windows-latest
+    steps:
+    - shell: cmd
+      run: |
+        vcpkg install libftdi1:x64-windows-static-md libusb:x64-windows-static-md
+        cargo install probe-rs --features cli
+        7z a b.7z %USERPROFILE%\.cargo\bin
+    - uses: actions/upload-artifact@v3
+      with:
+        name: bin
+        path: b.7z
