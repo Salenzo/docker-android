@@ -1,4 +1,4 @@
-name: Dogix
+name: Ruby on Dogix
 on:
   workflow_dispatch:
 jobs:
