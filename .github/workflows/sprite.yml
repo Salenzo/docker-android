@@ -17,7 +17,8 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -x
-        SKIAVERSION="$(gh api repos/aseprite/skia/releases/latest | jq -r .tag_name)"
+        # SKIAVERSION="$(gh api repos/aseprite/skia/releases/latest | jq -r .tag_name)"
+        SKIAVERSION=m124-08a5439a6b
         VERSION="$(gh api repos/aseprite/aseprite/releases/latest | jq -r .tag_name)"
         # VERSION=v1.2.39
         mkdir -p a b c
@@ -44,7 +45,9 @@ jobs:
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cmake -DSKIA_DIR=..\c -DSKIA_LIBRARY_DIR=..\c\out\Release-x64 -DSKIA_LIBRARY=..\c\out\Release-x64\skia.lib ^
           -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -G Ninja ..\a
+        if errorlevel 1 exit /b 1
         ninja aseprite
+        if errorlevel 1 exit /b 1
         7z a b.7z bin
     - if: runner.os == 'macOS'
       shell: bash
