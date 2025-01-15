@@ -41,9 +41,10 @@ jobs:
     - if: runner.os == 'Windows'
       shell: cmd
       run: |
+        set abc=%cd%
         cd b
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        cmake -DSKIA_DIR=..\c -DSKIA_LIBRARY_DIR=..\c\out\Release-x64 -DSKIA_LIBRARY=..\c\out\Release-x64\skia.lib ^
+        cmake -DSKIA_DIR=%abc%\c -DSKIA_LIBRARY_DIR=%abc%\c\out\Release-x64 -DSKIA_LIBRARY=%abc%\c\out\Release-x64\skia.lib ^
           -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -G Ninja ..\a
         if errorlevel 1 exit /b 1
         ninja aseprite
