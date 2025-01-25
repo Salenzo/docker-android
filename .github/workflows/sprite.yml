@@ -49,6 +49,8 @@ jobs:
         if errorlevel 1 exit /b 1
         ninja aseprite
         if errorlevel 1 exit /b 1
+        move lib\*.dll bin
+        move obj\*.dll bin
         7z a b.7z bin
     - if: runner.os == 'macOS'
       shell: bash
