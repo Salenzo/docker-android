@@ -10,12 +10,14 @@ jobs:
         repository: 'HoTT/book'
     - run: |
         sudo apt-get update
-        sudo apt-get install -y texlive-latex-recommended
-    - name: 真正伟大的tmate插件
-      uses: mxschmitt/action-tmate@v3
+        sudo apt-get install -y texlive-latex-recommended apt-file texlive-fonts-recommended texlive-latex-extra texlive-science
+        # tlmgr init-usertree
+    #- uses: mxschmitt/action-tmate@v3
     - run: |
+        make hott-online.pdf
+        make hott-a4-exercises.pdf
+        make exercise_solutions.pdf
         mkdir build
-        touch build/placeholder
         mv *.pdf build || true
     - uses: actions/upload-artifact@v4
       with:
