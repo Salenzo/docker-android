@@ -1,0 +1,23 @@
+name: HoTT
+on:
+  workflow_dispatch:
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: 'HoTT/book'
+    - run: |
+        sudo apt-get update
+        sudo apt-get install -y texlive-latex-recommended
+    - name: 真正伟大的tmate插件
+      uses: mxschmitt/action-tmate@v3
+    - run: |
+        mkdir build
+        touch build/placeholder
+        mv *.pdf build || true
+    - uses: actions/upload-artifact@v4
+      with:
+        name: output
+        path: build
