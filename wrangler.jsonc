@@ -1,0 +1,25 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "salenzo-debug",
+  "pages_build_output_dir": "",
+	"compatibility_date": "2025-04-09",
+	"observability": {
+		"enabled": true,
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "maps",
+				"class_name": "World",
+			},
+		],
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"World",
+			],
+		},
+	],
+}

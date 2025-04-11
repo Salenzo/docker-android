@@ -1,6 +1,0 @@
-name = "salenzo-debug"
-pages_build_output_dir = ""
-compatibility_date = "2025-04-09"
-
-[env]
-production = { }
