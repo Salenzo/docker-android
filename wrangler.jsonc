@@ -6,20 +6,10 @@
 	"observability": {
 		"enabled": true
 	},
-	"durable_objects": {
-		"bindings": [
-			{
-				"name": "maps",
-				"class_name": "World"
-			}
-		]
-	},
-	"migrations": [
+	"services": [
 		{
-			"tag": "v1",
-			"new_sqlite_classes": [
-				"World"
-			]
+			"binding": "hello",
+			"service": "hello"
 		}
 	]
 }

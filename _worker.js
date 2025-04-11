@@ -4,10 +4,10 @@ export default {
     if (url.pathname.startsWith('/api/')) {
       return new Response('OK')
     }
+    if (url.pathname.startsWith('/api/')) {
+      return env.hello.fetch(url)
+    }
     return new Response(url)
-    return env.ASSETS.fetch(request)
+    // return env.ASSETS.fetch(request)
   },
-}
-
-export class World {
 }
