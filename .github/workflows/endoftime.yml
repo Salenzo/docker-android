@@ -1,0 +1,16 @@
+name: endoftime
+
+on:
+  schedule:
+  - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: |
+        mkdir -p request_log
+        curl 101.43.244.76:15135 > request_log/$(date +%s).txt 2>&1
+        git add -A; git -c user.email=@ -c user.name="GitHub Actions" commit --allow-empty-message -m "" && git push origin main || true
