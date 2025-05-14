@@ -12,11 +12,27 @@ create table leaderboard (
 ) strict;
 */
 
-export function onRequest(context) {
+async function hash(method, input) {
+	return Array.from(new Uint8Array(await crypto.subtle.digest(method, new TextEncoder().encode(input))), b => ('0' + b.toString(16)).slice(-2)).join('')
+}
+
+export async function onRequest(context) {
 	if (context.request.method !== 'GET') {
 		return new Response('?', { status: 405 })
 	}
 
-	context.request.headers.get('X-')
-	return new Response(context.params.input)
+	const { searchParams } = new URL(context.request.url)
+	const input = searchParams.get('input')
+	if (!input) {
+		return new Response('input?', { status: 400 })
+	}
+	const inputHash = context.params.input
+	if (hash(input) !== inputHash) {
+		return new Response('input??', { status: 400 })
+	}
+	const response = await env.ASSETS.fetch(context.request)
+	if (response.ok) {
+		return new Response('114514')
+	}
+	return response
 }
