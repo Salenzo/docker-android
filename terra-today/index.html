@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html lang=zh-Hans>
-<input id=a>
-<button id=b>
-	<script>
-		const sha256 = async input => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))), b => ('0' + b.toString(16)).slice(-2)).join('')
+<form id=answer autocomplete=off>
+	<input id=a required maxlength=114>
+</form>
+<pre id=y></pre>
+<form id=register method=POST autocomplete=off hidden>
+	<input name=name maxlength=1919>
+	<textarea name=description maxlength=1919></textarea>
+	<button type=submit></button>
+</form>
+<script>
+	const sha256 = async input => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))), b => ('0' + b.toString(16)).slice(-2)).join('')
 
-		b.onclick = async () => {
-			try {
-				const input = a.value
-				const response = await fetch(`answer/${await sha256(`嘟嘟嘟 嘟嘟嘟
+	answer.onsubmit = async event => {
+		try {
+			event.preventDefault()
+			answer.disabled = true
+			y.textContent = '◇'
+			const input = a.value
+			const response = await fetch(`answer/${await sha256(`
+嘟嘟嘟 嘟嘟嘟
 Work work work work
 Work work work work
 Work work work work
@@ -45,10 +56,29 @@ Wooooo
 Wooooo
 我即是天选，也是VE！
 无敌了 无敌了`)}?${new URLSearchParams({ input })}`)
-				const text = await response.text()
-				console.log(response.status, response.statusText, text)
-			} catch (error) {
-				alert(error.stack)
+			const text = await response.text()
+			console.log(response.status, response.statusText, text)
+			if (response.ok) {
+				if (text[0] === '/') {
+					register.action = text
+					register.hidden = false
+					answer.hidden = true
+				} else {
+					y.textContent = `✓ ${text}`.trimRight()
+				}
+			} else if (response.status === 404) {
+				a.value = ''
+				y.textContent = `${input}\nWrong Answer`
+			} else {
+				y.textContent = `HTTP ${response.status} ${text}`
 			}
+		} catch (error) {
+			y.textContent = error.stack
+		} finally {
+			answer.disabled = false
 		}
-	</script>
+	}
+	register.onsubmit = async event => {
+
+	}
+</script>
