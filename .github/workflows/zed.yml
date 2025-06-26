@@ -1,0 +1,21 @@
+name: zed
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "5 14 * * FRI"
+jobs:
+  a:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: zed-industries/zed
+        # main好像很乱
+        ref: v0.192.5
+    - shell: bash
+      run: |
+        cargo build --release
+    - uses: actions/upload-artifact@v4
+      with:
+        name: b
+        path: .
