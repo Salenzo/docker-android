@@ -1,4 +1,4 @@
-name: zed
+name: Zed
 on:
   workflow_dispatch:
   schedule:
@@ -7,12 +7,15 @@ jobs:
   a:
     runs-on: windows-latest
     steps:
+    - shell: pwsh
+      run: |
+        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
     - uses: actions/checkout@v4
       with:
         repository: zed-industries/zed
         # main好像很乱
         ref: v0.192.5
-    - shell: bash
+    - shell: cmd
       run: |
         cargo build --release
     - uses: actions/upload-artifact@v4
