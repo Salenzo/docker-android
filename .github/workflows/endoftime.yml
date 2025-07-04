@@ -14,3 +14,5 @@ jobs:
         mkdir -p request_log
         curl --compressed 101.43.244.76:15135 | tee request_log/$(date +%s).txt
         git add -A; git -c user.email=@ -c user.name="GitHub Actions" commit --allow-empty-message -m "" && git push origin master || true
+        python plot.py > all.txt
+        git add -A; git -c user.email=@ -c user.name="GitHub Actions" commit --allow-empty-message -m "" && git push origin master || true
