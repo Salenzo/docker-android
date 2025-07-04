@@ -3,7 +3,6 @@ import json
 from collections import Counter
 h = Counter()
 for f in os.scandir('request_log'):
-	print(f)
 	with open(f.path, 'rb') as f:
 		j = json.load(f)
 	if 'her_name' in j:
