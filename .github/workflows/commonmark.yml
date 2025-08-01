@@ -1,0 +1,18 @@
+name: commonmark
+on:
+  workflow_dispatch:
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        sudo apt-get update
+        sudo apt-get install -y lua5.3 luarocks texlive-xetex
+        sudo luarocks install lcmark
+        git clone --depth=1 --single-branch --branch 0.31.2 https://github.com/commonmark/commonmark-spec
+        cd commonmark-spec
+        make spec.pdf
+    - uses: actions/upload-artifact@v3
+      with:
+        name: bin
+        path: spec.pdf
