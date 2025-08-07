@@ -1,0 +1,19 @@
+name: docker pull
+
+on:
+  workflow_dispatch:
+    inputs:
+      image: {type: text}
+      pullopts: {type: text, required: false}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        docker pull ${{ inputs.pullopts }} ${{ inputs.image }}
+        docker save ${{ inputs.image }} | zstd -19 > a.zst
+    - uses: actions/upload-artifact@v4
+      with:
+        name: downloads
+        path: a.zst
