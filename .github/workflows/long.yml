@@ -138,4 +138,5 @@ jobs:
         		break
         	t2= time.time()
         	print(t2-t)
-        python a.py
+        EOF
+        python a.py | tee a.log
