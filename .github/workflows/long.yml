@@ -11,12 +11,12 @@ jobs:
         sudo pip install grilops
         cat <<EOF > a.py
         """Heyawake solver example.
-
         Example puzzle can be found at http://www.nikoli.co.jp/en/puzzles/heyawake.html.
+        
         """
         
         from collections import defaultdict
-        from z3 import And, BV2Int, BitVecVal, Concat, Extract, If, Implies, Int, PbEq, Sum
+        from z3 import And, BV2Int, BitVecVal, Concat, Extract, If, Implies, Int, PbEq, Sum, Or
         
         import grilops
         import grilops.regions
@@ -42,7 +42,7 @@ jobs:
         AAAAAAAAAGGAAAA""".split()
         
         REGION_COUNTS = {
-        		"A": 114514,
+        		"A": 2,
         }
         
         
@@ -55,13 +55,18 @@ jobs:
         
         	# Rule 1: Painted cells may never be orthogonally connected (they may not
         	# share a side, although they can touch diagonally).
-        	for p in lattice.points:
-        		sg.solver.add(
-        				Implies(
-        						sg.cell_is(p, sym.B),
-        						And(*[n.symbol != sym.B for n in sg.edge_sharing_neighbors(p)])
-        				)
-        		)
+        	for i in range(HEIGHT-1):
+        		for j in range(WIDTH):
+        			sg.solver.add(Or([
+        				sg.cell_is(grilops.Point(i,j), sym.W),
+        				sg.cell_is(grilops.Point(i+1,j), sym.W),
+        			]))
+        	for i in range(HEIGHT):
+        		for j in range(WIDTH-1):
+        			sg.solver.add(Or([
+        				sg.cell_is(grilops.Point(i,j), sym.W),
+        				sg.cell_is(grilops.Point(i,j+1), sym.W),
+        			]))
         
         	# Rule 2: All white cells must be interconnected (form a single polyomino).
         	rc = grilops.regions.RegionConstrainer(
@@ -69,8 +74,7 @@ jobs:
         			sg.solver,
         			complete=False)
         	white_region_id = Int("white_region_id")
-        	sg.solver.add(white_region_id >= 0)
-        	sg.solver.add(white_region_id < HEIGHT * WIDTH)
+        	sg.solver.add(Or(white_region_id == 0, white_region_id == 1))
         	for p in lattice.points:
         		sg.solver.add(
         				If(
@@ -80,6 +84,7 @@ jobs:
         				)
         		)
         
+        	t0=time.time()
         	# Rule 3: A number indicates exactly how many painted cells there must be in
         	# that particular room.
         	region_cells = defaultdict(list)
@@ -95,33 +100,29 @@ jobs:
         	# formed, it must not contain cells from more than two rooms—in other words,
         	# any such line of white cells which connects three or more rooms is
         	# forbidden.
-        	region_names = sorted(list(set(c for row in REGIONS for c in row)))
-        	bits = len(region_names)
-        
-        	def set_region_bit(bv, p):
-        		i = region_names.index(REGIONS[p.y][p.x])
-        		chunks = []
-        		if i < bits - 1:
-        			chunks.append(Extract(bits - 1, i + 1, bv))
-        		chunks.append(BitVecVal(1, 1))
-        		if i > 0:
-        			chunks.append(Extract(i - 1, 0, bv))
-        		return Concat(*chunks)
-        
-        	for p in lattice.points:
-        		for n in sg.edge_sharing_neighbors(p):
-        			bv = reduce_cells(
-        					sg,
-        					p,
-        					n.direction,
-        					set_region_bit(BitVecVal(0, bits), p),
-        					lambda acc, c, ap: set_region_bit(acc, ap),
-        					lambda acc, c, sp: c == sym.B
-        			)
-        			popcnt = Sum(*[BV2Int(Extract(i, i, bv)) for i in range(bits)])
-        			sg.solver.add(Implies(sg.cell_is(p, sym.W), popcnt <= 2))
+        	for i in range(HEIGHT-1):
+        		for j in range(WIDTH):
+        			if REGIONS[i][j]!=REGIONS[i+1][j]:
+        				for k in range(i+2,HEIGHT):
+        					if REGIONS[k][j]!=REGIONS[i+1][j]:
+        						break
+        				else:
+        					continue
+        				sg.solver.add(Or([sg.cell_is(grilops.Point(m,j), sym.B) for m in range(i,k+1)]))
+        	for i in range(HEIGHT):
+        		for j in range(WIDTH-1):
+        			if REGIONS[i][j]!=REGIONS[i][j+1]:
+        				for k in range(j+2,WIDTH):
+        					if REGIONS[i][k]!=REGIONS[i][j+1]:
+        						break
+        				else:
+        					continue
+        				sg.solver.add(Or([sg.cell_is(grilops.Point(i,m), sym.B) for m in range(j,k+1)]))
+        	t1=time.time()
+        	print('prepare',t1-t0)
         
         	if sg.solve():
+        		print('Solvable at',cnt)
         		if sg.is_unique():
         			print("Unique solution at", cnt)
         			sg.print()
@@ -137,5 +138,4 @@ jobs:
         		break
         	t2= time.time()
         	print(t2-t)
-        EOF
         python a.py
