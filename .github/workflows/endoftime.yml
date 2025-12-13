@@ -11,6 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: |
+        curl 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/activity_table.json' | jq '{actThemes: .actThemes, basicInfo: .basicInfo}' | tee activity_table.json || true
         mkdir -p request_log
         curl --compressed 101.43.244.76:15135 | tee request_log/$(date +%s).txt
         git add -A; git -c user.email=@ -c user.name="GitHub Actions" commit --allow-empty-message -m "" && git push origin master || true
