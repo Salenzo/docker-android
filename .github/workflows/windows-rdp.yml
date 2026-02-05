@@ -26,13 +26,7 @@ jobs:
 
       - name: Create RDP User with Secure Password
         run: |
-          Add-Type -AssemblyName System.Security
-          $charSet = @{
-              Upper   = [char[]](65..67)      # A-Z
-          }
-          $rawPassword = @()
-          $rawPassword += $charSet.Upper | Get-Random -Count 8
-          $password = -join ($rawPassword | Sort-Object { Get-Random })
+          $password = "1145141919810_henghengAAA"
           $securePass = ConvertTo-SecureString $password -AsPlainText -Force
           New-LocalUser -Name "RDP" -Password $securePass -AccountNeverExpires
           Add-LocalGroupMember -Group "Administrators" -Member "RDP"
@@ -40,10 +34,6 @@ jobs:
           
           echo "RDP_CREDS=User: RDP | Password: $password" >> $env:GITHUB_ENV
           
-          if (-not (Get-LocalUser -Name "RDP")) {
-              Write-Error "User creation failed"
-              exit 1
-          }
       - name: 真正伟大的Tailscale
         uses: tailscale/github-action@v4
         with:
