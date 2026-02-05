@@ -28,7 +28,7 @@ jobs:
         run: |
           Add-Type -AssemblyName System.Security
           $charSet = @{
-              Upper   = [char[]](65..65)      # A-Z
+              Upper   = [char[]](65..67)      # A-Z
           }
           $rawPassword = @()
           $rawPassword += $charSet.Upper | Get-Random -Count 8
