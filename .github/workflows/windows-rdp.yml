@@ -45,8 +45,9 @@ jobs:
           $tsIP = $null
           $retries = 0
           while (-not $tsIP -and $retries -lt 10) {
-              Write-Error "Tailscale IP not assigned. Waiting."
+              echo "Tailscale IP not assigned. Waiting."
               $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
+              echo "echo $tsIP"
               Start-Sleep -Seconds 5
               $retries++
           }
