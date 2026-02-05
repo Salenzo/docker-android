@@ -1,0 +1,15 @@
+name: 狗Windows RDP
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: 真正伟大的Tailscale
+      uses: tailscale/github-action@v4
+      with:
+        authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+    - uses: actions/upload-artifact@v4
+      with:
+        name: downloads
+        path: .
