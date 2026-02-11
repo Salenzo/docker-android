@@ -40,9 +40,25 @@ jobs:
           Write-Host "Password: $password"
           Write-Host "==================`n"
 
-          $userFolder = Get-ChildItem "C:\Users" -Directory -Filter "RDP.*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          $desktopPath = Join-Path $userFolder.FullName "Desktop"
-          $sessionFilePath = Join-Path $desktopPath "Delete this file to end the session.txt"
+          Write-Host "等待登录，然后创建桌面文件"
+          $rdpDesktop = $null
+          while (-not $rdpDesktop) {
+              $userFolder = Get-ChildItem "C:\Users" -Directory -Filter "RDP*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+              if ($userFolder) {
+                  $desktopPath = Join-Path $userFolder.FullName "Desktop"
+                  if (Test-Path $desktopPath) {
+                      $rdpDesktop = $desktopPath
+                      Write-Host "找到桌面路径: $rdpDesktop"
+                  }
+              }
+
+              if (-not $rdpDesktop) {
+                  Start-Sleep -Seconds 3
+              }
+          }
+
+          $sessionFilePath = Join-Path $rdpDesktop "Delete this file to end the session.txt"
           New-Item -Path $sessionFilePath -ItemType File -Force
           icacls $sessionFilePath /grant Everyone:F
           Write-Host "等待会话文件被删除"
