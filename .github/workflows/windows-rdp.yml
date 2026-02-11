@@ -40,9 +40,11 @@ jobs:
           Write-Host "Password: $password"
           Write-Host "==================`n"
 
-          $sessionFilePath = "C:\Users\RDP\Desktop\Delete this file to end the session.txt"
+          $userFolder = Get-ChildItem "C:\Users" -Directory -Filter "RDP.*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $desktopPath = Join-Path $userFolder.FullName "Desktop"
+          $sessionFilePath = Join-Path $desktopPath "Delete this file to end the session.txt"
           New-Item -Path $sessionFilePath -ItemType File -Force
-          Write-Host "等待session.txt文件被删除"
+          Write-Host "等待会话文件被删除"
           while (Test-Path $sessionFilePath) {
               Start-Sleep -Seconds 1
           }
