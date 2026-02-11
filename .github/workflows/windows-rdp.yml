@@ -44,8 +44,10 @@ jobs:
           $desktopPath = Join-Path $userFolder.FullName "Desktop"
           $sessionFilePath = Join-Path $desktopPath "Delete this file to end the session.txt"
           New-Item -Path $sessionFilePath -ItemType File -Force
+          icacls $sessionFilePath /grant Everyone:F
           Write-Host "等待会话文件被删除"
           while (Test-Path $sessionFilePath) {
               Start-Sleep -Seconds 1
           }
           Write-Host "文件已删除，结束"
+          tsdiscon
