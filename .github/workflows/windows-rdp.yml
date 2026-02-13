@@ -2,10 +2,9 @@ name: 狗Windows RDP
 on:
   workflow_dispatch:
 jobs:
-  secure-rdp:
+  build:
     runs-on: windows-latest
-    timeout-minutes: 3600
-
+    timeout-minutes: 114514
     steps:
       - name: 真正伟大的Tailscale
         uses: tailscale/github-action@v4
