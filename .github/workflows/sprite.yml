@@ -69,7 +69,7 @@ jobs:
           -G Ninja ../a
         ninja aseprite
         7z a b.7z bin
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@main
       with:
         name: ${{ matrix.os }}
         path: b/b.7z

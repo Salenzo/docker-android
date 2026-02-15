@@ -5,7 +5,7 @@ jobs:
   a:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@main
       with:
         repository: 'HoTT/book'
     - run: |
@@ -19,7 +19,7 @@ jobs:
         make exercise_solutions.pdf
         mkdir build
         mv *.pdf build || true
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@main
       with:
         name: output
         path: build

@@ -14,7 +14,7 @@ jobs:
     - run: |
         docker pull ${{ inputs.pullopts }} ${{ inputs.image }}
         docker save ${{ inputs.image }} | zstd -19 > a.tar.zst
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@main
       with:
         name: downloads
         path: a.tar.zst

@@ -9,7 +9,7 @@ jobs:
       uses: mxschmitt/action-tmate@v3
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@main
       with:
         name: downloads
         path: .

@@ -9,7 +9,7 @@ jobs:
   a:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@main
     - run: |
         curl 'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/activity_table.json' | jq --compact-output '{actThemes: .actThemes, basicInfo: .basicInfo}' | tee activity_table.json || true
         mkdir -p request_log
