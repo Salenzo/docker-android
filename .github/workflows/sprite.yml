@@ -59,13 +59,13 @@ jobs:
         cd b
         cmake \
           -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-          -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+          -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
           -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
           -DLAF_BACKEND=skia \
           -DSKIA_DIR=../c \
-          -DSKIA_LIBRARY_DIR=../c/out/Release-x64 \
-          -DSKIA_LIBRARY=../c/out/Release-x64/libskia.a \
+          -DSKIA_LIBRARY_DIR=../c/out/Release-arm64 \
+          -DSKIA_LIBRARY=../c/out/Release-arm64/libskia.a \
           -G Ninja ../a
         ninja aseprite
         7z a b.7z bin
