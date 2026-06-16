@@ -12,18 +12,8 @@ name: snowluma docker image
 
 on:
   schedule:
-    # Runs at 00:00 UTC on the 4th, 14th, and 24th of every month
-    - cron: '0 0 4,14,24 * *'
+    - cron: '33 19 3/10 * *'
   workflow_dispatch:
-    inputs:
-      image:
-        description: 'Docker image name (namespace/repository)'
-        required: false
-        default: 'motricseven7/snowluma'
-      versions_count:
-        description: 'Number of versions to fetch'
-        required: false
-        default: '5'
 
 jobs:
   generate-diffs:
@@ -39,13 +29,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y xdelta3 jq curl
+          sudo apt-get install -y xdelta3
 
       - name: Fetch Docker image versions
         id: fetch_versions
         run: |
-          IMAGE_NAMESPACE="${GITHUB_EVENT_INPUTS_IMAGE:-motricseven7/snowluma}"
-          VERSIONS_COUNT="${GITHUB_EVENT_INPUTS_VERSIONS_COUNT:-5}"
+          IMAGE_NAMESPACE="motricseven7/snowluma"
+          VERSIONS_COUNT="5"
           
           echo "Fetching ${VERSIONS_COUNT} latest versions of ${IMAGE_NAMESPACE}..."
           
@@ -114,7 +104,7 @@ jobs:
           echo "Generating patch: ${CURRENT_VERSION} -> ${LATEST_VERSION}"
           
           # Use xdelta3 with fgh compression (level 9 for best compression)
-          xdelta3 -e -9 -S fgh \
+          xdelta3 -e -9 -S lzma \
             -s "current_${CURRENT_SAFE}.tar" \
             "latest_${LATEST_SAFE}.tar" \
             "${PATCH_NAME}"
@@ -158,8 +148,8 @@ jobs:
           xdelta3 -d -s "current_${CURRENT_SAFE}.tar" "${PATCH_NAME}" "reconstructed_${LATEST_SAFE}.tar"
           
           # Compare checksums
-          ORIG_MD5=$(md5sum "latest_${LATEST_SAFE}.tar" | cut -d' ' -f1)
-          RECON_MD5=$(md5sum "reconstructed_${LATEST_SAFE}.tar" | cut -d' ' -f1)
+          ORIG_MD5=$(sha256sum "latest_${LATEST_SAFE}.tar" | cut -d' ' -f1)
+          RECON_MD5=$(sha256sum "reconstructed_${LATEST_SAFE}.tar" | cut -d' ' -f1)
           
           if [ "$ORIG_MD5" = "$RECON_MD5" ]; then
             echo "✅ Verification successful: Reconstructed file matches original"
