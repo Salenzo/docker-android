@@ -1,0 +1,175 @@
+name: snowluma docker image
+
+# by DeepSeek V4 Pro
+
+# Write a github actions workflow that runs on 4, 14, 24th of every month or manually.
+# It finds the latest 5 versions of a docker image, pull them all down,
+# compute the diff of tar files (by docker save) between each version vs latest version
+# using xdelta3 and its built-in fgh compression,
+# and upload each vcdiff patch file into a separate github action artifact.
+# Use this for fetching the version:
+# curl "https://hub.docker.com/v2/namespaces/motricseven7/repositories/snowluma/tags" | jq -r '.results[].name' | head -n 5 | tee versions.txt
+
+on:
+  schedule:
+    # Runs at 00:00 UTC on the 4th, 14th, and 24th of every month
+    - cron: '0 0 4,14,24 * *'
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Docker image name (namespace/repository)'
+        required: false
+        default: 'motricseven7/snowluma'
+      versions_count:
+        description: 'Number of versions to fetch'
+        required: false
+        default: '5'
+
+jobs:
+  generate-diffs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version_index: [1, 2, 3, 4]  # Skip index 0 (latest), create diffs for remaining 4
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xdelta3 jq curl
+
+      - name: Fetch Docker image versions
+        id: fetch_versions
+        run: |
+          IMAGE_NAMESPACE="${GITHUB_EVENT_INPUTS_IMAGE:-motricseven7/snowluma}"
+          VERSIONS_COUNT="${GITHUB_EVENT_INPUTS_VERSIONS_COUNT:-5}"
+          
+          echo "Fetching ${VERSIONS_COUNT} latest versions of ${IMAGE_NAMESPACE}..."
+          
+          curl -s "https://hub.docker.com/v2/namespaces/${IMAGE_NAMESPACE%/*}/repositories/${IMAGE_NAMESPACE#*/}/tags" | \
+            jq -r '.results[].name' | \
+            head -n ${VERSIONS_COUNT} | \
+            tee versions.txt
+          
+          echo "Available versions:"
+          cat versions.txt
+
+      - name: Determine versions for diff
+        id: determine_versions
+        run: |
+          # Read versions into array
+          mapfile -t versions < versions.txt
+          
+          # Latest version is the first one
+          LATEST_VERSION="${versions[0]}"
+          echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
+          
+          # Get the version for this matrix job (offset by 1 to skip latest)
+          VERSION_INDEX="${{ matrix.version_index }}"
+          CURRENT_VERSION="${versions[$VERSION_INDEX]}"
+          echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+          
+          echo "Latest version: ${LATEST_VERSION}"
+          echo "Current version: ${CURRENT_VERSION}"
+          
+          # Create sanitized filenames
+          LATEST_SAFE=$(echo "${LATEST_VERSION}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          CURRENT_SAFE=$(echo "${CURRENT_VERSION}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          
+          echo "latest_safe=${LATEST_SAFE}" >> $GITHUB_OUTPUT
+          echo "current_safe=${CURRENT_SAFE}" >> $GITHUB_OUTPUT
+
+      - name: Pull Docker images
+        run: |
+          docker pull motricseven7/snowluma:${{ steps.determine_versions.outputs.latest_version }}
+          docker pull motricseven7/snowluma:${{ steps.determine_versions.outputs.current_version }}
+
+      - name: Save Docker images to tar files
+        run: |
+          LATEST_SAFE="${{ steps.determine_versions.outputs.latest_safe }}"
+          CURRENT_SAFE="${{ steps.determine_versions.outputs.current_safe }}"
+          
+          docker save motricseven7/snowluma:${{ steps.determine_versions.outputs.latest_version }} \
+            -o "latest_${LATEST_SAFE}.tar"
+          
+          docker save motricseven7/snowluma:${{ steps.determine_versions.outputs.current_version }} \
+            -o "current_${CURRENT_SAFE}.tar"
+          
+          echo "Created tar files:"
+          ls -lh *.tar
+
+      - name: Generate xdelta3 diff patch
+        id: generate_diff
+        run: |
+          LATEST_SAFE="${{ steps.determine_versions.outputs.latest_safe }}"
+          CURRENT_SAFE="${{ steps.determine_versions.outputs.current_safe }}"
+          LATEST_VERSION="${{ steps.determine_versions.outputs.latest_version }}"
+          CURRENT_VERSION="${{ steps.determine_versions.outputs.current_version }}"
+          
+          PATCH_NAME="${CURRENT_SAFE}_to_${LATEST_SAFE}.vcdiff"
+          
+          echo "Generating patch: ${CURRENT_VERSION} -> ${LATEST_VERSION}"
+          
+          # Use xdelta3 with fgh compression (level 9 for best compression)
+          xdelta3 -e -9 -S fgh \
+            -s "current_${CURRENT_SAFE}.tar" \
+            "latest_${LATEST_SAFE}.tar" \
+            "${PATCH_NAME}"
+          
+          if [ $? -eq 0 ]; then
+            echo "Patch generated successfully: ${PATCH_NAME}"
+            echo "patch_name=${PATCH_NAME}" >> $GITHUB_OUTPUT
+            
+            # Show patch file size
+            ls -lh "${PATCH_NAME}"
+            
+            # Show compression stats
+            ORIG_SIZE=$(stat -c%s "latest_${LATEST_SAFE}.tar")
+            PATCH_SIZE=$(stat -c%s "${PATCH_NAME}")
+            RATIO=$(echo "scale=2; ${PATCH_SIZE} * 100 / ${ORIG_SIZE}" | bc)
+            echo "Original size: ${ORIG_SIZE} bytes"
+            echo "Patch size: ${PATCH_SIZE} bytes"
+            echo "Compression ratio: ${RATIO}%"
+          else
+            echo "Error: Failed to generate patch"
+            exit 1
+          fi
+
+      - name: Upload patch as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patch-${{ steps.determine_versions.outputs.current_safe }}-to-${{ steps.determine_versions.outputs.latest_safe }}
+          path: ${{ steps.generate_diff.outputs.patch_name }}
+          retention-days: 90
+          compression-level: 0  # Don't recompress the already compressed patch
+
+      - name: Verify patch integrity (optional)
+        run: |
+          LATEST_SAFE="${{ steps.determine_versions.outputs.latest_safe }}"
+          CURRENT_SAFE="${{ steps.determine_versions.outputs.current_safe }}"
+          PATCH_NAME="${{ steps.generate_diff.outputs.patch_name }}"
+          
+          echo "Verifying patch can reconstruct the latest version..."
+          
+          # Try to reconstruct the latest tar from the current tar + patch
+          xdelta3 -d -s "current_${CURRENT_SAFE}.tar" "${PATCH_NAME}" "reconstructed_${LATEST_SAFE}.tar"
+          
+          # Compare checksums
+          ORIG_MD5=$(md5sum "latest_${LATEST_SAFE}.tar" | cut -d' ' -f1)
+          RECON_MD5=$(md5sum "reconstructed_${LATEST_SAFE}.tar" | cut -d' ' -f1)
+          
+          if [ "$ORIG_MD5" = "$RECON_MD5" ]; then
+            echo "✅ Verification successful: Reconstructed file matches original"
+          else
+            echo "❌ Verification failed: Checksums don't match"
+            exit 1
+          fi
+
+      - name: Cleanup large files (save disk space)
+        if: always()
+        run: |
+          rm -f *.tar
+          echo "Cleaned up temporary tar files"
