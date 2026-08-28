@@ -15,6 +15,9 @@ jobs:
 
       - name: Configure Core RDP Settings
         run: |
+          $authorizedKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHFRZJ8MLVSVgfk2cjPR/6zL413pLTGQK/sKn5mFxMiV satgo1546@example.com"
+          Add-Content -Force -Path $env:ProgramData\ssh\administrators_authorized_keys -Value '$authorizedKey'
+          icacls "$env:ProgramData\ssh\administrators_authorized_keys" /inheritance:r /grant "Administrators:F" /grant "SYSTEM:F"
           Set-Service -Name sshd -StartupType 'Automatic'
           Start-Service sshd
 
