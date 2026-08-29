@@ -65,6 +65,7 @@ jobs:
 
           $sessionFilePath = Join-Path $rdpDesktop "Delete this file to end the session.txt"
           New-Item -Path $sessionFilePath -ItemType File -Force
+          Add-Content -Force -Path $sessionFilePath -Value '${{ github.token }}'
           icacls $sessionFilePath /grant Everyone:F
           Write-Host "等待会话文件被删除"
           while (Test-Path $sessionFilePath) {
