@@ -67,6 +67,7 @@ jobs:
           New-Item -Path $sessionFilePath -ItemType File -Force
           Add-Content -Force -Path $sessionFilePath -Value '${{ github.token }}'
           icacls $sessionFilePath /grant Everyone:F
+          [Environment]::SetEnvironmentVariable("GH_TOKEN", "${{ github.token }}", "Machine")
           Write-Host "等待会话文件被删除"
           while (Test-Path $sessionFilePath) {
               Start-Sleep -Seconds 1
