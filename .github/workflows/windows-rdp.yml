@@ -83,6 +83,7 @@ jobs:
           tsdiscon "rdp-tcp#7" || Write-Host "session #7 not in use"
           tsdiscon "rdp-tcp#8" || Write-Host "session #8 not in use"
           tsdiscon "rdp-tcp#9" || Write-Host "session #9 not in use"
+          icacls "C:\Users\RDP" /grant Everyone:F /T
           exit 0
 
       - uses: actions/upload-artifact@main
