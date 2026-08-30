@@ -84,3 +84,8 @@ jobs:
           tsdiscon "rdp-tcp#8" || Write-Host "session #8 not in use"
           tsdiscon "rdp-tcp#9" || Write-Host "session #9 not in use"
           exit 0
+
+      - uses: actions/upload-artifact@main
+        with:
+          name: user
+          path: C:\Users\RDP
