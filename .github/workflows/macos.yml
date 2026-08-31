@@ -1,15 +1,28 @@
 name: macOS
 on:
   workflow_dispatch:
+    inputs:
+      custom_command:
+        required: false
+        type: string
+        default: ''
 jobs:
   build:
     runs-on: macos-latest
     steps:
+    - name: 执行自定义命令
+      if: github.event.inputs.custom_command != ''
+      run: ${{ github.event.inputs.custom_command }}
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
     - name: 真正伟大的tmate插件
+      if: github.event.inputs.custom_command == ''
       uses: mxschmitt/action-tmate@v3
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - uses: actions/upload-artifact@main
       with:
-        name: downloads
+        name: all
         path: .
